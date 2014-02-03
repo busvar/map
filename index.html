@@ -21,6 +21,13 @@
       <script src="client.js"></script>
       <script src="funciones.js"></script>
       <script>
+
+      var stats = new Stats();
+      stats.setMode(0);
+      stats.domElement.style.position = 'absolute';
+      stats.domElement.style.left = '0px';
+      stats.domElement.style.top = '0px';
+      document.body.appendChild(stats.domElement);
    
          var canvas = document.getElementById("myCanvas");
          var ctx = canvas.getContext('2d');
@@ -78,12 +85,16 @@
 
 			requestAnimFrame(mainLoop);
 
+      stats.begin();
+
 			var newDate = +new Date();
 			var delta = newDate - oldDate;
 			oldDate = newDate;
 
 			logic(delta);
 			render(ctx);
+
+      stats.end();
 		}
 		requestAnimFrame(mainLoop);
 
