@@ -1,0 +1,94 @@
+
+<html>
+
+<head>
+
+      <style>
+             body {
+             	margin : 0px;
+             	padding: 0px;
+             }
+       </style>
+
+</head>
+
+<body>
+
+      <canvas id="myCanvas"></canvas>
+      <script src="Keyboard.js"></script>
+      <script src="socket.io.min.js"></script>
+      <script src="server.js"></script>
+      <script src="client.js"></script>
+      <script src="funciones.js"></script>
+      <script>
+   
+         var canvas = document.getElementById("myCanvas");
+         var ctx = canvas.getContext('2d');
+         canvas.width = window.innerWidth;
+         canvas.height = window.innerHeight;
+
+         var kb = new KeyboardJS(true);
+         var cam = new Camara(canvas.width/2, canvas.height/2);
+         var map = new Map();
+         var speed = 1;
+
+         function logic(dt) {
+         	if(kb.char('A')) cam.actualPos.x -= speed*dt;
+         	else if(kb.char('D'))cam.actualPos.x += speed*dt;  
+         	if(kb.char('S')) cam.actualPos.y += speed*dt;
+         	else if(kb.char('W')) cam.actualPos.y -= speed*dt;
+
+         	cam.logic(dt);
+         }
+
+         function render(ctx) {
+         	var iX = Math.floor((cam.pos.x - canvas.width/2)/CELL_EDGE);
+			var iY = Math.floor((cam.pos.y - canvas.height/2)/CELL_EDGE);
+			var eX = Math.floor((cam.pos.x + canvas.width/2)/CELL_EDGE);
+			var eY = Math.floor((cam.pos.y + canvas.height/2)/CELL_EDGE);
+
+			ctx.save();
+
+			cam.focus(ctx);
+
+			//ctx.globalAlpha = 0.3;
+			
+			for (var x = iX; x <= eX; ++x) {
+				for (var y = iY; y <= eY; ++y) {
+					var cell = map.getCellAtPos(new Pos(x, y));
+					ctx.drawImage(cell.buff,x*CELL_EDGE,y*CELL_EDGE);
+				}
+			}
+
+			//ctx.globalAlpha = 1;
+		
+			ctx.restore();
+
+         }
+
+         window.onresize = function () {
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+			render(ctx);
+		}
+		window.onresize();
+
+		var oldDate = +new Date();
+		function mainLoop () {
+
+			requestAnimFrame(mainLoop);
+
+			var newDate = +new Date();
+			var delta = newDate - oldDate;
+			oldDate = newDate;
+
+			logic(delta);
+			render(ctx);
+		}
+		requestAnimFrame(mainLoop);
+
+
+      </script>
+</body>	
+
+</html>
